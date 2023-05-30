@@ -1,7 +1,7 @@
 const workers = [];
 let ready = 0;
 let batch = 0;
-let maxWorkers = 5; // change me to set workers used
+let maxWorkers = 10; // change me to set workers used
 
 
 for (let i = 0; i < maxWorkers; i++) {
