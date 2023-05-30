@@ -1,0 +1,18 @@
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "4.3.5"
+  },
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "3.42.0-build1",
+    "module-workers-polyfill": "^0.3.2"
+  }
+}
