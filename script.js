@@ -1,5 +1,6 @@
 const workers = [];
 let ready = 0;
+let batch = 0;
 
 for (let i = 0; i < 5; i++) {
   const worker = new Worker(new URL("./worker.js", import.meta.url), {
@@ -9,7 +10,11 @@ for (let i = 0; i < 5; i++) {
   workers.push(worker);
 
   function doWork() {
-    console.log("batch work starting");
+    batch++;
+
+    document.body.innerHTML =
+      "please wait - close developer console, starting batch" + batch;
+
     for (let i = 0; i < 5; i++) {
       const w = workers[i];
 
@@ -21,7 +26,7 @@ for (let i = 0; i < 5; i++) {
 
   worker.onmessage = function (msg) {
     if (msg.data === "ERROR") {
-      document.body.innerHTML = "open console";
+      document.body.innerHTML = "open console, failed at batch:" + batch;
       stop = true;
     }
 
