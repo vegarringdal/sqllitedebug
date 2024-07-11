@@ -3,7 +3,7 @@
 
 * git clone https://github.com/vegarringdal/sqllitedebug
 * npm i
-* npm run dev
+* npm start
 * open http://localhost:1080/
 
 
