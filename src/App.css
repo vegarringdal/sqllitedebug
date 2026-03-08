@@ -1,0 +1,80 @@
+/** biome-ignore-all lint/complexity/noImportantStyles: need it */
+
+.new-cell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    bottom: 0;
+    margin: 0;
+
+    background-color: rgba(0, 238, 255, 1) !important;
+    background-image: initial !important;
+    filter: opacity(1) !important;
+}
+
+.deleted-cell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    bottom: 0;
+    margin: 0;
+
+    background-color: rgba(255, 0, 0, 1) !important;
+    background-image: initial !important;
+    filter: opacity(1) !important;
+}
+
+.edit-cell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    bottom: 0;
+    margin: 0;
+
+    background-color: rgb(238, 255, 0) !important;
+    background-image: initial !important;
+    filter: opacity(1) !important;
+}
+
+.new-cell-modified {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+
+    background-color: rgba(0, 238, 255, 1) !important;
+    background-image: initial !important;
+    filter: opacity(1) !important;
+}
+
+.deleted-cell-modified {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+
+    background-color: rgba(255, 0, 0, 1) !important;
+    background-image: initial !important;
+    filter: opacity(1) !important;
+}
+
+.edit-cell-modified {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+    color: back;
+    background-color: rgb(238, 255, 0) !important;
+    background-image: initial !important;
+    filter: opacity(1) !important;
+}
+
+.cell-modified-text {
+    color: black !important;
+}

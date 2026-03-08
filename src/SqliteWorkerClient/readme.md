@@ -1,0 +1,1 @@
+Pretty much made it so you can copy this into project..
