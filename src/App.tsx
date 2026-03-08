@@ -119,6 +119,8 @@ function App() {
                                 isActive ? "bg-indigo-500/50" : ""
                             )}
                             onClick={async () => {
+                                console.clear();
+
                                 flushSync(() => {
                                     setIsActive(true);
                                     setProgressMsg("starting work");
