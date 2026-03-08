@@ -126,9 +126,9 @@ function App() {
                                 });
 
                                 const r = await e.instance.execute(args, (type, no, _total) => {
-                                    flushSync(() => {
-                                        setProgressMsg(`Type:${type.padEnd(10, " ")} ${no}`);
-                                    });
+                                    //flushSync(() => {
+                                    setProgressMsg(`Type:${type.padEnd(10, " ")} ${no}`);
+                                    // });
                                 });
 
                                 printSqliteWorkerClient(args, r);

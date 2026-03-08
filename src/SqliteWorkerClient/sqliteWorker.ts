@@ -26,6 +26,7 @@ let sqlite3: Sqlite3Static | null = null;
  * worker message handler
  * @param e
  */
+
 globalThis.onmessage = async (e) => {
     const data = e.data as WorkerMessageEvent;
     if (data.type === "EXECUTE") {

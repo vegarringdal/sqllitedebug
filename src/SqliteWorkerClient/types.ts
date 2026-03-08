@@ -26,7 +26,8 @@ export type SqlExecuteOption = {
     progress?: boolean;
     /**
      * DEFAULT = 1000
-     * will only show if (rowno % progressSize === 0)
+     * will only show if type ROW (rowno % progressSize !== 0)
+     * PS! this can slow it down a lot..
      */
     progressSize?: number;
 
