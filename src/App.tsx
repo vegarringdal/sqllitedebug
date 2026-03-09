@@ -116,28 +116,23 @@ function App() {
                             disabled={isActive}
                             className={e.getClassName(isActive)}
                             onClick={async () => {
-                                console.clear();
+                                console.clear(); // easier to read samples
 
-                                flushSync(() => {
-                                    setIsActive(true);
-                                    setProgressMsg("starting work");
-                                    setErrorMsg("");
-                                });
+                                setIsActive(true);
+                                setProgressMsg("starting work");
+                                setErrorMsg("");
 
                                 const r = await e.instance.execute(args, (type, no, _total) => {
-                                    //flushSync(() => {
                                     setProgressMsg(`Type:${type.padEnd(10, " ")} ${no}`);
-                                    // });
                                 });
 
                                 printSqliteWorkerClient(args, r);
                                 setIsActive(false);
-                                flushSync(() => {
-                                    setProgressMsg("ready for user action");
-                                    if (r.err) {
-                                        setErrorMsg(r.err.msg);
-                                    }
-                                });
+
+                                setProgressMsg("ready for user action");
+                                if (r.err) {
+                                    setErrorMsg(r.err.msg);
+                                }
                             }}
                         >
                             {e.buttonTitle}
