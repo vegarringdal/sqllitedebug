@@ -88,10 +88,12 @@ export class SqliteWorkerClient {
             this.#responses.set(id, r);
 
             // configure progress
-            options.progress = false;
-            if (progressCallback) {
-                options.progress = true;
+
+            if (progressCallback && options.progressSize) {
                 this.#progressCallback.set(id, progressCallback);
+            } else {
+                // disable it, nothing to send back too
+                options.progressSize = 0;
             }
 
             worker?.postMessage({
@@ -121,12 +123,24 @@ export class SqliteWorkerClient {
         const resolves: resolveFN[] = [];
         const locks: Promise<any>[] = [];
         const filesInUse: string[] = [];
+        const lockTimeout = options.lockTimeout || 0;
+        const lockMode = options.lockmode || "exclusive";
 
         let finalResult = {} as SqlWorkerResult;
 
+        const lockOptions = {
+            ifAvailable: lockTimeout === 0,
+            mode: lockMode || "exclusive"
+        } as LockOptions;
+        if (lockTimeout > 0) {
+            const controller = new AbortController();
+            setTimeout(() => controller?.abort(), lockTimeout);
+            lockOptions.signal = controller.signal;
+        }
+
         Array.from(files).forEach((e) => {
             locks.push(
-                navigator.locks.request(e, { ifAvailable: true }, (lock) => {
+                navigator.locks.request(e, lockOptions, (lock) => {
                     return new Promise(async (r) => {
                         if (!lock) {
                             filesInUse.push(e);

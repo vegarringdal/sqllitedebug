@@ -87,7 +87,7 @@ function App() {
             <div className="flex flex-col p-3">
                 <button
                     type="button"
-                    className={twJoin("p-1 bg-orange-500 m-1")}
+                    className={twJoin("p-1 bg-yellow-500 m-1")}
                     onClick={async () => {
                         flushSync(() => {
                             setIsActive(true);
@@ -114,10 +114,7 @@ function App() {
                         <button
                             type="button"
                             disabled={isActive}
-                            className={twJoin(
-                                "p-1 bg-indigo-500 m-1",
-                                isActive ? "bg-indigo-500/50" : ""
-                            )}
+                            className={e.getClassName(isActive)}
                             onClick={async () => {
                                 console.clear();
 

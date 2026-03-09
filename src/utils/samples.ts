@@ -5,6 +5,9 @@ export const samples = [
     {
         buttonTitle: "Insert 25k rows into main.db",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-indigo-500 m-1 ${isActive ? "bg-indigo-500/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "main.db",
@@ -20,6 +23,9 @@ export const samples = [
                         ])
                     }
                 ],
+                lockmode: "exclusive",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -29,6 +35,9 @@ export const samples = [
     {
         buttonTitle: "Insert 25k rows into alt.db",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-indigo-500 m-1 ${isActive ? "bg-indigo-500/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "alt.db",
@@ -44,6 +53,9 @@ export const samples = [
                         ])
                     }
                 ],
+                lockmode: "exclusive",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -53,6 +65,9 @@ export const samples = [
     {
         buttonTitle: "delete all test - main.db",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-red-600 m-1 ${isActive ? "bg-red-600/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "main.db",
@@ -66,7 +81,9 @@ export const samples = [
                         sql: "delete from test"
                     }
                 ],
-
+                lockmode: "exclusive",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -76,6 +93,9 @@ export const samples = [
     {
         buttonTitle: "delete all test - alt.db",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-red-600 m-1 ${isActive ? "bg-red-600/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "alt.db",
@@ -89,7 +109,9 @@ export const samples = [
                         sql: "delete from test"
                     }
                 ],
-
+                lockmode: "exclusive",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -99,6 +121,9 @@ export const samples = [
     {
         buttonTitle: "select all test - main.db",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-green-600 m-1 ${isActive ? "bg-green-600/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "main.db",
@@ -112,7 +137,9 @@ export const samples = [
                         sql: "select * from test"
                     }
                 ],
-
+                lockmode: "shared",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -122,6 +149,9 @@ export const samples = [
     {
         buttonTitle: "select all test - alt.db",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-green-600 m-1 ${isActive ? "bg-green-600/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "alt.db",
@@ -135,7 +165,9 @@ export const samples = [
                         sql: "select * from test"
                     }
                 ],
-
+                lockmode: "shared",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -145,6 +177,9 @@ export const samples = [
     {
         buttonTitle: "delete all test in alt.db (attached)",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-red-600 m-1 ${isActive ? "bg-red-600/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "",
@@ -160,6 +195,9 @@ export const samples = [
                         sql: "delete from ALT.test"
                     }
                 ],
+                lockmode: "exclusive",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs
@@ -170,6 +208,9 @@ export const samples = [
         buttonTitle:
             "Insert 2000k rows into main.ds (long running, you can kill, or use other tab to select from alt)",
         instance: sqliteWorkerClientInstance01,
+        getClassName(isActive: boolean) {
+            return `p-1 bg-indigo-500 m-1 ${isActive ? "bg-indigo-500/50" : ""}`;
+        },
         options(logCollect: boolean, debugpPrint: boolean, printArgs: boolean): SqlExecuteOption {
             return {
                 mainDbPath: "main.db",
@@ -185,6 +226,9 @@ export const samples = [
                         ])
                     }
                 ],
+                lockmode: "exclusive",
+                lockTimeout: 0,
+                progressSize: 10000,
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs

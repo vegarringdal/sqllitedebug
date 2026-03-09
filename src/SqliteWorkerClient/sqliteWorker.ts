@@ -30,10 +30,10 @@ let sqlite3: Sqlite3Static | null = null;
 globalThis.onmessage = async (e) => {
     const data = e.data as WorkerMessageEvent;
     if (data.type === "EXECUTE") {
-        const progressSize = data.options.progressSize || 1000;
+        const progressSize = data.options.progressSize;
 
         const result = await execute(data.options, data.id, (type, no, total) => {
-            if (!data.options.progress) return;
+            if (!data.options.progressSize) return;
 
             if (type === "ROW" && no % progressSize !== 0) {
                 return;
@@ -71,7 +71,7 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
     const fileMap: FileMap = new Map();
     const fileHandles = [];
     let db: Database | null = null;
-
+    const lockmode = options.lockmode === "shared" ? "read-only" : "readwrite";
     /**
      * create main db file handle/directories
      */
@@ -102,16 +102,22 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
             const dbFileHandle = await currentDir.getFileHandle(fileName, {
                 create: true
             });
-            const syncHandle = await dbFileHandle.createSyncAccessHandle();
+            // @ts-expect-error - not supported everywhere/standard
+            const syncHandle = await dbFileHandle.createSyncAccessHandle({
+                mode: lockmode
+            });
             logger.log(`filehandled created: ${parts.join("/") + fileName}`);
             fileMap.set(parts.join("/") + fileName, syncHandle);
             fileHandles.push(syncHandle);
         }
-        {
+        if (lockmode === "readwrite") {
             const dbFileHandle = await currentDir.getFileHandle(fileNameJournal, {
                 create: true
             });
-            const syncHandle = await dbFileHandle.createSyncAccessHandle();
+            // @ts-expect-error - not supported everywhere/standard
+            const syncHandle = await dbFileHandle.createSyncAccessHandle({
+                mode: lockmode
+            });
             logger.log(`filehandled created: ${parts.join("/") + fileNameJournal}`);
             fileMap.set(parts.join("/") + fileNameJournal, syncHandle);
             fileHandles.push(syncHandle);
@@ -139,17 +145,23 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
                 const dbFileHandle = await currentDir.getFileHandle(fileName, {
                     create: true
                 });
-                const syncHandle = await dbFileHandle.createSyncAccessHandle();
+                // @ts-expect-error - not supported everywhere/standard
+                const syncHandle = await dbFileHandle.createSyncAccessHandle({
+                    mode: lockmode
+                });
                 logger.log(`filehandled created: ${parts.join("/") + fileName}`);
                 fileMap.set(parts.join("/") + fileName, syncHandle);
 
                 fileHandles.push(syncHandle);
             }
-            {
+            if (lockmode === "readwrite") {
                 const dbFileHandle = await currentDir.getFileHandle(fileNameJournal, {
                     create: true
                 });
-                const syncHandle = await dbFileHandle.createSyncAccessHandle();
+                // @ts-expect-error - not supported everywhere/standard
+                const syncHandle = await dbFileHandle.createSyncAccessHandle({
+                    mode: lockmode
+                });
                 logger.log(`filehandled created: ${parts.join("/") + fileNameJournal}`);
                 fileMap.set(parts.join("/") + fileNameJournal, syncHandle);
                 fileHandles.push(syncHandle);
@@ -195,9 +207,11 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
          * begin sql work
          */
 
-        db.exec("pragma locking_mode=exclusive");
-        db.exec("pragma journal_mode = TRUNCATE");
-        db.exec("BEGIN TRANSACTION");
+        if (lockmode === "readwrite") {
+            db.exec("pragma locking_mode=exclusive");
+            db.exec("pragma journal_mode = TRUNCATE");
+            db.exec("BEGIN TRANSACTION");
+        }
 
         for (let i = 0; i < options.statements.length; i++) {
             const statementResult: any[] = [];
@@ -257,16 +271,20 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
 
             logger.log(`Statement done  ${i.toString().padStart(3, "0")}`);
         }
-        logger.log(`db commit start`);
-        db.exec("COMMIT");
-        logger.log(`db commit done`);
+        if (lockmode === "readwrite") {
+            logger.log(`db commit start`);
+            db.exec("COMMIT");
+            logger.log(`db commit done`);
+        }
         logger.log(`db close start`);
         db.close();
         logger.log(`db close done`);
     } catch (e) {
         logger.log("error occured");
         if (db) {
-            db.exec("ROLLBACK");
+            if (lockmode === "readwrite") {
+                db.exec("ROLLBACK");
+            }
             db.close();
         }
         /* simple for now */
@@ -279,7 +297,9 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
 
     logger.log("cleanup file handles start");
     for (let i = 0; i < fileHandles.length; i++) {
-        fileHandles[i].flush();
+        if (lockmode === "readwrite") {
+            fileHandles[i].flush();
+        }
         fileHandles[i].close();
     }
 

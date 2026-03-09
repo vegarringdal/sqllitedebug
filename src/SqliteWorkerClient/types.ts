@@ -20,21 +20,27 @@ export type SqlExecuteOption = {
      */
     statements: Statement[];
     /**
-     * DEFAULT = false
-     * set automatically if progressCallback is defined
+     * how long to wait until you quick trying to lock..
+     * useful if you do a lot of small operations, and want it to try up to 500ms..
      */
-    progress?: boolean;
+    lockTimeout: number;
     /**
-     * DEFAULT = 1000
+     * mode for web-lock/filehandle
+     * PS! not all browsers support read-only mode..
+     * use shared for read only mode
+     */
+    lockmode: "shared" | "exclusive";
+    /**
+     * 0 = off
      * will only show if type ROW (rowno % progressSize !== 0)
      * PS! this can slow it down a lot..
      */
-    progressSize?: number;
+    progressSize: number;
 
     /**
      * print to console in worker...
      */
-    debugPrint?: boolean; // default = false
+    debugPrint: boolean; // default = false
     /**
      * print to conosle, input to printSqliteWorkerClient helper
      */
@@ -42,7 +48,7 @@ export type SqlExecuteOption = {
     /**
      * for collecting/debug, will print if printSqliteWorkerClient helper is used
      */
-    collectLog?: boolean; // default = false
+    collectLog: boolean; // default = false
 };
 
 export type Statement = {

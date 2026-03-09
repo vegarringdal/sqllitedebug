@@ -24,11 +24,15 @@ consr result = sqliteWorkerClientInstance.execute({
             ])
         }
     ],
+    lockmode: "exclusive", // shared only for readonly... not all browser support..
+    lockTimeout: 0,
+    progressSize: 10000,
     collectLog: logCollect,
     debugPrint: debugpPrint,
     printInputOptions: printArgs
 }, (type:"STATMENT" | "ROW", rowno: number, total: total)=>{
     // show progress... this is optional..
+    // if you dont pass inn callback, progressSize is set to 0
 })
 
 ```
