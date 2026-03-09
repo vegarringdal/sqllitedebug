@@ -13,6 +13,8 @@ function App() {
     const [isActive, setIsActive] = useState(false);
     const [progessMsg, setProgressMsg] = useState("ready for user action");
     const [errorMsg, setErrorMsg] = useState("");
+    const [workerExecTime, setWorkerExecTime] = useState("");
+    const [totalExecTime, setTotalExecTime] = useState("");
 
     return (
         <div className="app flex flex-col bg-gray-900 text-gray-200 h-full w-full text-xs @container">
@@ -84,6 +86,8 @@ function App() {
             <div className="p-2 w-full text-red-300">
                 Errors: <span hidden={errorMsg === ""}>{errorMsg}</span>
             </div>
+            <div className="p-2 w-full text-red-300">workerExecTime: {workerExecTime}</div>
+            <div className="p-2 w-full text-red-300">totalExecTime: {totalExecTime}</div>
             <div className="flex flex-col p-3">
                 <button
                     type="button"
@@ -126,6 +130,8 @@ function App() {
                                     setProgressMsg(`Type:${type.padEnd(10, " ")} ${no}`);
                                 });
 
+                                setWorkerExecTime(`${r.execTimeWorker.toFixed(0)}ms`);
+                                setTotalExecTime(`${r.execTime.toFixed(0)}ms`);
                                 printSqliteWorkerClient(args, r);
                                 setIsActive(false);
 
