@@ -96,6 +96,7 @@ export type WorkerMessageEvent =
     | {
           id: number;
           options: SqlExecuteOption;
+          logtime: readonly [number, number];
           type: "EXECUTE";
       }
     | {
@@ -119,6 +120,8 @@ export type SqlWorkerResult = {
     data: unknown[] | null;
     logs: string[];
     err: null | { err: any; msg: string };
+    // internal only atm
+    transferedLogtime: readonly [number, number];
     execTimeWorker: number;
     execTime: number;
 };

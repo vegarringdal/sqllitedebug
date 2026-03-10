@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./App.css";
-import { flushSync } from "react-dom";
 import { twJoin } from "tailwind-merge";
 import { printSqliteWorkerClient } from "./SqliteWorkerClient/main";
 import { samples } from "./utils/samples";
@@ -93,18 +92,15 @@ function App() {
                     type="button"
                     className={twJoin("p-1 bg-yellow-500 m-1")}
                     onClick={async () => {
-                        flushSync(() => {
-                            setIsActive(true);
-                            setProgressMsg("starting work");
-                            setErrorMsg("");
-                        });
+                        setIsActive(true);
+                        setProgressMsg("starting work");
+                        setErrorMsg("");
 
                         sqliteWorkerClientInstance01.killWorkerThread();
 
                         setIsActive(false);
-                        flushSync(() => {
-                            setProgressMsg("ready for user action");
-                        });
+
+                        setProgressMsg("ready for user action");
                     }}
                 >
                     kill worker

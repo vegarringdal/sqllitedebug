@@ -1,3 +1,4 @@
+import { LogCollector } from "./LogCollector";
 import SqliteWorker from "./sqliteWorker?worker";
 import type {
     ProgressCallback,
@@ -81,10 +82,15 @@ export class SqliteWorkerClient {
         this.#progressCallback.clear();
     }
 
-    #execute<T>(options: SqlExecuteOption, progressCallback?: ProgressCallback): Promise<T> {
+    #execute<T>(
+        options: SqlExecuteOption,
+        id: number,
+        logtime: readonly [number, number],
+        progressCallback?: ProgressCallback
+    ): Promise<T> {
         return new Promise((r) => {
             const worker = this.#getWorker();
-            const id = this.#getNextId();
+
             this.#responses.set(id, r);
 
             // configure progress
@@ -98,6 +104,7 @@ export class SqliteWorkerClient {
 
             worker?.postMessage({
                 id,
+                logtime,
                 options,
                 type: "EXECUTE"
             });
@@ -116,6 +123,15 @@ export class SqliteWorkerClient {
 
     async execute(options: SqlExecuteOption, progressCallback?: ProgressCallback) {
         const p = performance.now();
+        const id = this.#getNextId();
+        const log_before_work = new LogCollector(
+            id,
+            "bWorker",
+            options.collectLog,
+            options.debugPrint,
+            [performance.timeOrigin + p, performance.timeOrigin + p]
+        );
+        let log_after_work: LogCollector | null = null;
         const files = new Set<string>();
         files.add(options.mainDbPath);
         options.additionalDbPaths.map((e) => files.add(e));
@@ -139,26 +155,49 @@ export class SqliteWorkerClient {
         }
 
         Array.from(files).forEach((e) => {
+            log_before_work.log(`Locking: ${e}`);
             locks.push(
                 navigator.locks.request(e, lockOptions, (lock) => {
                     return new Promise(async (r) => {
                         if (!lock) {
+                            log_before_work.log(`File in use: ${e}`);
                             filesInUse.push(e);
                         }
-
+                        log_before_work.log(`Lock ok: ${e}`);
                         // we need to release them later, calling resolve unlocks the file
                         resolves.push(r);
                         this.#filePromiseLocks.add(r); // so we have ref to them if we need to terminate worker... we also need to unlock locked files
 
                         if (resolves.length === files.size) {
                             if (filesInUse.length === 0) {
-                                finalResult = await this.#execute(options, progressCallback);
+                                log_before_work.log(`All locks aquired, calling worker`);
+                                finalResult = await this.#execute(
+                                    options,
+                                    id,
+                                    log_before_work.transferAbsoluteLogTimes(),
+                                    progressCallback
+                                );
+                            } else {
+                                log_before_work.log(`Locking failed`);
                             }
+                            const logimer = finalResult.transferedLogtime || [
+                                performance.timeOrigin + p,
+                                performance.timeOrigin + p
+                            ];
+                            log_after_work = new LogCollector(
+                                id,
+                                "aWorker",
+                                options.collectLog,
+                                options.debugPrint,
+                                logimer
+                            );
+                            log_after_work.log(`unlocking`);
                             resolves.forEach((e) => {
                                 // release/cleanup class refs
                                 e(null);
                                 this.#filePromiseLocks.delete(e);
                             });
+                            log_after_work.log(`unlocking done`);
                         }
                     });
                 })
@@ -168,7 +207,6 @@ export class SqliteWorkerClient {
         await Promise.allSettled(locks);
 
         // add total time
-        finalResult.execTime = performance.now() - p;
 
         if (filesInUse.length) {
             finalResult.data = null;
@@ -177,6 +215,19 @@ export class SqliteWorkerClient {
                 msg: `Files in use: ${filesInUse.join(", ")}`
             };
         }
+        if (log_after_work) {
+            (log_after_work as LogCollector).log(`done`);
+        }
+
+        finalResult.logs = log_before_work
+            .getResult()
+            .logs.concat(
+                finalResult.logs.concat(
+                    (log_after_work && (log_after_work as LogCollector).getResult().logs) || []
+                )
+            );
+
+        finalResult.execTime = performance.now() - p;
 
         return finalResult;
     }

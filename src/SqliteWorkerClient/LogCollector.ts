@@ -1,15 +1,38 @@
 export class LogCollector {
     #logs: string[] = [];
     #startTime: number = 0;
+    #startTimeFirst: number = 0;
     #enabled: boolean;
     #debugPrint: boolean;
     #id: number;
+    #lastLog: number;
+    #name: string;
 
-    constructor(id: number, enabled: boolean = false, debugPrint: boolean = false) {
+    constructor(
+        id: number,
+        name: string,
+        enabled: boolean = false,
+        debugPrint: boolean = false,
+        timeAbsolute: readonly [number, number]
+    ) {
         this.#id = id;
-        this.#startTime = performance.now();
+        this.#name = name.padEnd(10, " ");
+        this.#startTimeFirst = timeAbsolute[0] - performance.timeOrigin;
+        this.#startTime = this.#startTimeFirst;
+        this.#lastLog = timeAbsolute[1] - performance.timeOrigin;
         this.#enabled = enabled;
         this.#debugPrint = debugPrint;
+    }
+
+    /**
+     *
+     * @returns [startTime, lastLogTime]
+     */
+    transferAbsoluteLogTimes() {
+        return [
+            this.#startTimeFirst + performance.timeOrigin,
+            this.#lastLog + performance.timeOrigin
+        ] as const;
     }
 
     log(msg: string) {
@@ -17,14 +40,19 @@ export class LogCollector {
             return;
         }
 
-        const t = `${msg}`;
-        const log = `${(performance.now() - this.#startTime).toFixed(0).padStart(4, "0")} ms  - ${t}`;
+        const timePast = (performance.now() - this.#startTime).toFixed(0).padStart(4, "0");
+        const timeOffset = (performance.now() - this.#lastLog).toFixed(0).padStart(4, "0");
+
+        this.#lastLog = performance.now();
+
+        const logMsg = `${this.#name} - ${timePast} ms [${timeOffset}]  - ${msg}`;
+
         if (this.#enabled) {
-            this.#logs.push(log);
+            this.#logs.push(logMsg);
         }
 
         if (this.#debugPrint) {
-            console.log(this.#id, log);
+            console.log(this.#id, logMsg);
         }
     }
 

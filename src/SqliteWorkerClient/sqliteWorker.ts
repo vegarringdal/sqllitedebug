@@ -32,7 +32,7 @@ globalThis.onmessage = async (e) => {
     if (data.type === "EXECUTE") {
         const progressSize = data.options.progressSize;
 
-        const result = await execute(data.options, data.id, (type, no, total) => {
+        const result = await execute(data.options, data.id, data.logtime, (type, no, total) => {
             if (!data.options.progressSize) return;
 
             if (type === "ROW" && no % progressSize !== 0) {
@@ -62,11 +62,16 @@ globalThis.onmessage = async (e) => {
  * @param options
  * @returns
  */
-async function execute(options: SqlExecuteOption, id: number, progressCallback: ProgressCallback) {
+async function execute(
+    options: SqlExecuteOption,
+    id: number,
+    logtime: readonly [number, number],
+    progressCallback: ProgressCallback
+) {
     /**
      * main vars
      */
-    const logger = new LogCollector(id, options.collectLog, options.debugPrint);
+    const logger = new LogCollector(id, "iWorker", options.collectLog, options.debugPrint, logtime);
     const root = await navigator.storage.getDirectory();
     const fileMap: FileMap = new Map();
     const fileHandles = [];
@@ -310,6 +315,7 @@ async function execute(options: SqlExecuteOption, id: number, progressCallback: 
     return {
         data: err ? null : statementResults,
         logs: loggerResult.logs,
+        transferedLogtime: logger.transferAbsoluteLogTimes(),
         err,
         execTimeWorker: loggerResult.executeTime,
         execTime: 0
