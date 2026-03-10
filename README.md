@@ -7,7 +7,6 @@ weird little experiment Im having with custom sync vfs
 * `npm start`
 * [livedemo](https://vegarringdal.github.io/sqllitedebug/dist/index.html)
 
-
 ```ts
 
 consr result = sqliteWorkerClientInstance.execute({
@@ -29,9 +28,9 @@ consr result = sqliteWorkerClientInstance.execute({
                 },
                     
                 ],
-                lockmode: "exclusive",
-                lockTimeout: 0,
-                progressSize: 10000,
+                lockmode: "exclusive", // can used "shared" for multiple readers if you dont plan to write and browser support it
+                lockTimeout: 0, // for waiting, useful if you have multiple queries that will run at once from diffrent contexts
+                progressSize: 10000, // 0 = no callbacks..
                 collectLog: logCollect,
                 debugPrint: debugpPrint,
                 printInputOptions: printArgs                            
