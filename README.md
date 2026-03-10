@@ -19,7 +19,7 @@ consr result = sqliteWorkerClientInstance.execute({
                 },
                 {
                     sql: "INSERT INTO test (name) VALUES (?)",
-                    binding: Array.from(Array(10)).map((_, i) => [
+                    binding: Array.from(Array(5)).map((_, i) => [
                         `Hello from custom (ALT)VFS:${i}`
                     ])
                 },
@@ -49,77 +49,42 @@ consr result = sqliteWorkerClientInstance.execute({
 {
     "data": [
         [],
-        [],
-        [
-            [
-                1,
-                "Hello from custom (ALT)VFS:0"
-            ],
-            [
-                2,
-                "Hello from custom (ALT)VFS:1"
-            ],
-            [
-                3,
-                "Hello from custom (ALT)VFS:2"
-            ],
-            [
-                4,
-                "Hello from custom (ALT)VFS:3"
-            ],
-            [
-                5,
-                "Hello from custom (ALT)VFS:4"
-            ],
-            [
-                6,
-                "Hello from custom (ALT)VFS:5"
-            ],
-            [
-                7,
-                "Hello from custom (ALT)VFS:6"
-            ],
-            [
-                8,
-                "Hello from custom (ALT)VFS:7"
-            ],
-            [
-                9,
-                "Hello from custom (ALT)VFS:8"
-            ],
-            [
-                10,
-                "Hello from custom (ALT)VFS:9"
-            ]
-        ]
+        []
     ],
     "logs": [
-        "0001 ms  - filehandle about to be created",
-        "0001 ms  - filehandled created: main.db",
-        "0002 ms  - filehandled created: main.db-journal",
-        "0002 ms  - new SyncOpfsVfs start",
-        "0002 ms  - new SyncOpfsVfs done",
-        "0002 ms  - new sqlite3.oo1.DB start",
-        "0003 ms  - new sqlite3.oo1.DB done",
-        "0004 ms  - Statement start 000 - CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT)",
-        "0004 ms  - Statement bindings: 0",
-        "0004 ms  - Statement done  000",
-        "0004 ms  - Statement start 001 - INSERT INTO test (name) VALUES (?)",
-        "0004 ms  - Statement bindings: 10",
-        "0005 ms  - Statement done  001",
-        "0005 ms  - Statement start 002 - select * from test",
-        "0005 ms  - Statement bindings: 0",
-        "0005 ms  - Statement done  002",
-        "0005 ms  - db commit start",
-        "0015 ms  - db commit done",
-        "0015 ms  - db close start",
-        "0015 ms  - db close done",
-        "0015 ms  - cleanup file handles start",
-        "0015 ms  - cleanup file handles done"
+        "bWorker    - 0000 ms [0000]  - Locking: main.db",
+        "bWorker    - 0168 ms [0168]  - Lock ok: main.db",
+        "bWorker    - 0168 ms [0000]  - All locks aquired, calling worker",
+        "iWorker    - 0169 ms [0000]  - filehandle about to be created",
+        "iWorker    - 0169 ms [0001]  - filehandled created: main.db",
+        "iWorker    - 0170 ms [0000]  - filehandled created: main.db-journal",
+        "iWorker    - 0170 ms [0000]  - new SyncOpfsVfs start",
+        "iWorker    - 0171 ms [0002]  - new SyncOpfsVfs done",
+        "iWorker    - 0171 ms [0000]  - new sqlite3.oo1.DB start",
+        "iWorker    - 0172 ms [0001]  - new sqlite3.oo1.DB done",
+        "iWorker    - 0173 ms [0000]  - Statement start 000 - CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT)",
+        "iWorker    - 0173 ms [0000]  - Statement bindings: 0",
+        "iWorker    - 0173 ms [0000]  - Statement done  000",
+        "iWorker    - 0173 ms [0000]  - Statement start 001 - INSERT INTO test (name) VALUES (?)",
+        "iWorker    - 0173 ms [0000]  - Statement bindings: 5",
+        "iWorker    - 0173 ms [0001]  - Statement done  001",
+        "iWorker    - 0173 ms [0000]  - db commit start",
+        "iWorker    - 0183 ms [0009]  - db commit done",
+        "iWorker    - 0183 ms [0000]  - db close start",
+        "iWorker    - 0183 ms [0000]  - db close done",
+        "iWorker    - 0183 ms [0000]  - cleanup file handles start",
+        "iWorker    - 0185 ms [0002]  - cleanup file handles done - sending data",
+        "aWorker    - 0330 ms [0145]  - data recived - unlocking",
+        "aWorker    - 0330 ms [0000]  - unlocking done",
+        "aWorker    - 0330 ms [0000]  - done"
+    ],
+    "transferedLogtime": [
+        1773162362457.7,
+        1773162362642.5
     ],
     "err": null,
-    "execTimeWorker": 15.399999976158142,
-    "execTime": 136.79999995231628
+    "execTimeWorker": 184.800048828125,
+    "execTime": 330
 }
 
 ```

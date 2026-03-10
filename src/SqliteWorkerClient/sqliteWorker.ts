@@ -308,7 +308,7 @@ async function execute(
         fileHandles[i].close();
     }
 
-    logger.log("cleanup file handles done");
+    logger.log("cleanup file handles done - sending data");
 
     const loggerResult = logger.getResult();
 

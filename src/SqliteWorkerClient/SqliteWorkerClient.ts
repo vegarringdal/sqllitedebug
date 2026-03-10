@@ -191,7 +191,7 @@ export class SqliteWorkerClient {
                                 options.debugPrint,
                                 logimer
                             );
-                            log_after_work.log(`unlocking`);
+                            log_after_work.log(`data recived - unlocking`);
                             resolves.forEach((e) => {
                                 // release/cleanup class refs
                                 e(null);
