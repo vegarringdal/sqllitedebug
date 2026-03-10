@@ -210,22 +210,25 @@ export class SqliteWorkerClient {
 
         if (filesInUse.length) {
             finalResult.data = null;
+            finalResult.execTimeWorker = 0;
             finalResult.err = {
                 err: null,
                 msg: `Files in use: ${filesInUse.join(", ")}`
             };
         }
+
+        let afterwork_logs: string[] = [];
         if (log_after_work) {
             (log_after_work as LogCollector).log(`done`);
+            afterwork_logs = (log_after_work as LogCollector).getResult().logs;
         }
 
-        finalResult.logs = log_before_work
-            .getResult()
-            .logs.concat(
-                finalResult.logs.concat(
-                    (log_after_work && (log_after_work as LogCollector).getResult().logs) || []
-                )
-            );
+        let final_logs: string[] = [];
+        if (finalResult.logs) {
+            final_logs = finalResult.logs.concat(afterwork_logs);
+        }
+
+        finalResult.logs = log_before_work.getResult().logs.concat(final_logs);
 
         finalResult.execTime = performance.now() - p;
 
