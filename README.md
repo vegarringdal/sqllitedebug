@@ -9,36 +9,36 @@ weird little experiment Im having with custom sync vfs
 
 ```ts
 
-consr result = sqliteWorkerClientInstance.execute({
-            mainDbPath: "main.db",
-            additionalDbPaths: [],
-            statements: [
-                {
-                    sql: "CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT)"
-                },
-                {
-                    sql: "INSERT INTO test (name) VALUES (?)",
-                    binding: Array.from(Array(5)).map((_, i) => [
-                        `Hello from custom (ALT)VFS:${i}`
-                    ])
-                },
-                {
-                    sql: "select * from test",
-                    collect: true // collect rows returned
-                },
-                    
-                ],
-                lockmode: "exclusive", // can used "shared" for multiple readers if you dont plan to write and browser support it, it changes to exclusive if its not supported
-                lockTimeout: 0, // for waiting, useful if you have multiple queries that will run at once from diffrent contexts
-                progressSize: 10000, // 0 = no callbacks..
-                collectLog: logCollect,
-                debugPrint: debugpPrint,
-                printInputOptions: printArgs                            
-            }, 
-            (type:"STATMENT" | "ROW", rowno: number, total: total)=>{
-                // show progress... this is optional..
-                // if you dont pass inn callback, progressSize is set to 0
-            })
+const result = sqliteWorkerClientInstance.execute({
+    mainDbPath: "main.db",
+    additionalDbPaths: [],
+    statements: [
+        {
+            sql: "CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT)"
+        },
+        {
+            sql: "INSERT INTO test (name) VALUES (?)",
+            binding: Array.from(Array(5)).map((_, i) => [
+                `Hello from custom (ALT)VFS:${i}`
+            ])
+        },
+        {
+            sql: "select * from test",
+            collect: true // collect rows returned
+        },
+            
+        ],
+        lockmode: "exclusive", // can used "shared" for multiple readers if you dont plan to write and browser support it, it changes to exclusive if its not supported
+        lockTimeout: 0, // for waiting, useful if you have multiple queries that will run at once from diffrent contexts
+        progressSize: 10000, // 0 = no callbacks..
+        collectLog: true, // get string array with all logs, useful for debugging
+        debugPrint: false, // print to console log as we get logs (useful for debugging
+        printInputOptions: false // print input, useful for debugging                           
+    }, 
+    (type:"STATMENT" | "ROW", rowno: number, total: total)=>{
+        // show progress... this is optional..
+        // if you dont pass inn callback, progressSize is set to 0
+});
 
 ```
 
