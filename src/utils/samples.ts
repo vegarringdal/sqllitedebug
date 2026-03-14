@@ -3,7 +3,7 @@ import { sqliteWorkerClientInstance01 } from "./sqliteWorkerClientInstance";
 
 export const samples = [
     {
-        buttonTitle: "Insert 25k rows into main.db (exclusive lock)",
+        buttonTitle: "Insert 25k rows into main.db",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-indigo-500 m-1 ${isActive ? "bg-indigo-500/50" : ""}`;
@@ -33,7 +33,7 @@ export const samples = [
         }
     },
     {
-        buttonTitle: "Insert 25k rows into alt.db (exclusive lock)",
+        buttonTitle: "Insert 25k rows into alt.db",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-indigo-500 m-1 ${isActive ? "bg-indigo-500/50" : ""}`;
@@ -63,7 +63,7 @@ export const samples = [
         }
     },
     {
-        buttonTitle: "delete all test - main.db (exclusive lock)",
+        buttonTitle: "delete all test - main.db",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-red-600 m-1 ${isActive ? "bg-red-600/50" : ""}`;
@@ -91,7 +91,7 @@ export const samples = [
         }
     },
     {
-        buttonTitle: "delete all test - alt.db (exclusive lock)",
+        buttonTitle: "delete all test - alt.db",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-red-600 m-1 ${isActive ? "bg-red-600/50" : ""}`;
@@ -119,8 +119,7 @@ export const samples = [
         }
     },
     {
-        buttonTitle:
-            "select all test - main.db (shared lock, can use on long running selects in multiple tabs)",
+        buttonTitle: "select all test - main.db",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-green-600 m-1 ${isActive ? "bg-green-600/50" : ""}`;
@@ -148,8 +147,7 @@ export const samples = [
         }
     },
     {
-        buttonTitle:
-            "select all test - alt.db (shared lock, can use on long running selects in multiple tabs)",
+        buttonTitle: "select all test - alt.db",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-green-600 m-1 ${isActive ? "bg-green-600/50" : ""}`;
@@ -177,7 +175,7 @@ export const samples = [
         }
     },
     {
-        buttonTitle: "delete all test in alt.db (attached) (exclusive lock)",
+        buttonTitle: "delete all test in alt.db (attached)",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-red-600 m-1 ${isActive ? "bg-red-600/50" : ""}`;
@@ -208,7 +206,7 @@ export const samples = [
     },
     {
         buttonTitle:
-            "Insert 2000k rows into main.ds (long running, you can kill, or use other tab to select from alt) (exclusive lock)",
+            "Insert 2000k rows into main.ds (long running, you can kill, or use other tab to select from alt)",
         instance: sqliteWorkerClientInstance01,
         getClassName(isActive: boolean) {
             return `p-1 bg-indigo-500 m-1 ${isActive ? "bg-indigo-500/50" : ""}`;

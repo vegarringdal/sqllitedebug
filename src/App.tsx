@@ -140,7 +140,8 @@ function App() {
                             {e.buttonTitle}
                         </button>
                         <span className="p-1 text-gray-500 text-">
-                            Will lock: {args.mainDbPath} {args.additionalDbPaths.join(", ")}
+                            Will lock: {args.mainDbPath} {args.additionalDbPaths.join(", ")},
+                            lockmode: {args.lockmode}
                         </span>
                     </div>
                 );
