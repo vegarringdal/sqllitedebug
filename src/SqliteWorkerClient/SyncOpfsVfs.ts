@@ -1,3 +1,4 @@
+//import { Sqlite3Static } from "@sqlite.org/sqlite-wasm";
 import type { OpenFile } from "./types";
 
 type SyncHandle = FileSystemSyncAccessHandle;
@@ -23,7 +24,7 @@ export class SyncOpfsVfs {
         this.fileMap = fileMap;
     }
 
-    register(sqlite3: any): void {
+    register(sqlite3: any /*Sqlite3Static* types is wrong*/): void {
         const capi = sqlite3.capi;
         const wasm = sqlite3.wasm;
         const S = capi;
@@ -34,7 +35,7 @@ export class SyncOpfsVfs {
             return ptr;
         };
 
-        const readCStr = (ptr: number): string => (ptr ? wasm.cstrToJs(ptr) : "");
+        const readCStr = (ptr: number): string => (ptr ? wasm.cstrToJs(ptr)||"" : "");
 
         // const writeI64 = (pOut: number, value: number): void => {
         //     wasm.poke(pOut, value >>> 0, "i32");
@@ -138,7 +139,7 @@ export class SyncOpfsVfs {
             if (!file) return S.SQLITE_IOERR_FSTAT;
             const sz = file.handle ? file.handle.getSize() : (file.inMemory?.length ?? 0);
             // writeI64(pSize, sz);
-            wasm.poke64(pSize, sz, "i64");
+            wasm.poke64(pSize, sz);
             return S.SQLITE_OK;
         }, "i(pp)");
 
@@ -185,7 +186,7 @@ export class SyncOpfsVfs {
                 if (this.fileMap.has(basename)) {
                     fd.handle = this.fileMap.get(basename);
                 } else {
-                    console.log(basename);
+                    //console.log(basename);
                     // Journal/WAL/other SQLite temp files → in-memory fallback
                     fd.inMemory = new Uint8Array(0);
                 }

@@ -23,10 +23,67 @@ let sqlite3: Sqlite3Static | null = null;
 };
 
 /**
+ * helper for creating sync file handle
+ * @param fileFullPath
+ * @param lockmode
+ * @returns
+ */
+async function createSyncFileHandle(
+    fileFullPath: string,
+    lockmode: "read-only" | "readwrite",
+    logger: LogCollector,
+    isJournal = false
+) {
+    const parts = fileFullPath.split("/");
+    let fileName = parts.pop() || "unknown"; // last part is the file name
+    fileName = isJournal ? `${fileName}-journal` : fileName;
+
+    try {
+        const root = await navigator.storage.getDirectory();
+        let currentDir = root;
+
+        for (const part of parts) {
+            if (part) {
+                // skip empty strings from leading slashes
+                currentDir = await currentDir.getDirectoryHandle(part, { create: true });
+            }
+        }
+
+        logger.log(`filehandled created: ${parts.join("/") + fileName}`);
+
+        const dbFileHandle = await currentDir.getFileHandle(fileName, {
+            create: true
+        });
+
+        // @ts-expect-error - not supported everywhere/standard
+        const syncHandle = await dbFileHandle.createSyncAccessHandle({
+            mode: lockmode
+        });
+
+        return {
+            data: {
+                fullpath: parts.join("/") + fileName,
+                syncHandle
+            }
+        };
+    } catch (err: any) {
+        return {
+            data: null,
+            err: {
+                err,
+                msg: `unable to create sync handle:  ${parts.join("/") + fileName}, with lockMode:${lockmode}`
+            }
+        };
+    }
+}
+
+
+
+
+/**
  * worker message handler
  * @param e
  */
-
 globalThis.onmessage = async (e) => {
     const data = e.data as WorkerMessageEvent;
     if (data.type === "EXECUTE") {
@@ -72,7 +129,6 @@ async function execute(
      * main vars
      */
     const logger = new LogCollector(id, "iWorker", options.collectLog, options.debugPrint, logtime);
-    const root = await navigator.storage.getDirectory();
     const fileMap: FileMap = new Map();
     const fileHandles = [];
     let db: Database | null = null;
@@ -90,42 +146,30 @@ async function execute(
         /**
          * create main db file handle/directories
          */
-
-        const fileFullPath = options.mainDbPath;
-        const parts = fileFullPath.split("/");
-        const fileName = parts.pop() || "unknown"; // last part is the file name
-        const fileNameJournal = `${fileName}-journal`;
-        let currentDir = root;
-
-        for (const part of parts) {
-            if (part) {
-                // skip empty strings from leading slashes
-                currentDir = await currentDir.getDirectoryHandle(part, { create: true });
-            }
-        }
         {
-            const dbFileHandle = await currentDir.getFileHandle(fileName, {
-                create: true
-            });
-            // @ts-expect-error - not supported everywhere/standard
-            const syncHandle = await dbFileHandle.createSyncAccessHandle({
-                mode: lockmode
-            });
-            logger.log(`filehandled created: ${parts.join("/") + fileName}`);
-            fileMap.set(parts.join("/") + fileName, syncHandle);
-            fileHandles.push(syncHandle);
+            const syncHandleResult = await createSyncFileHandle(
+                options.mainDbPath,
+                lockmode,
+                logger
+            );
+            if (syncHandleResult.err) {
+                throw syncHandleResult.err.err;
+            }
+            fileMap.set(syncHandleResult.data.fullpath, syncHandleResult.data.syncHandle);
+            fileHandles.push(syncHandleResult.data.syncHandle);
         }
         if (lockmode === "readwrite") {
-            const dbFileHandle = await currentDir.getFileHandle(fileNameJournal, {
-                create: true
-            });
-            // @ts-expect-error - not supported everywhere/standard
-            const syncHandle = await dbFileHandle.createSyncAccessHandle({
-                mode: lockmode
-            });
-            logger.log(`filehandled created: ${parts.join("/") + fileNameJournal}`);
-            fileMap.set(parts.join("/") + fileNameJournal, syncHandle);
-            fileHandles.push(syncHandle);
+            const syncHandleResult = await createSyncFileHandle(
+                options.mainDbPath,
+                lockmode,
+                logger,
+                true
+            );
+            if (syncHandleResult.err) {
+                throw syncHandleResult.err.err;
+            }
+            fileMap.set(syncHandleResult.data.fullpath, syncHandleResult.data.syncHandle);
+            fileHandles.push(syncHandleResult.data.syncHandle);
         }
 
         /**
@@ -133,43 +177,30 @@ async function execute(
          */
 
         for (let i = 0; i < options.additionalDbPaths.length; i++) {
-            const fileFullPath = options.additionalDbPaths[i];
-            const parts = fileFullPath.split("/");
-            const fileName = parts.pop() || "unknown"; // last part is the file name
-            const fileNameJournal = `${fileName}-journal`;
-            let currentDir = root;
-
-            for (const part of parts) {
-                if (part) {
-                    // skip empty strings from leading slashes
-                    currentDir = await currentDir.getDirectoryHandle(part, { create: true });
-                }
-            }
-
             {
-                const dbFileHandle = await currentDir.getFileHandle(fileName, {
-                    create: true
-                });
-                // @ts-expect-error - not supported everywhere/standard
-                const syncHandle = await dbFileHandle.createSyncAccessHandle({
-                    mode: lockmode
-                });
-                logger.log(`filehandled created: ${parts.join("/") + fileName}`);
-                fileMap.set(parts.join("/") + fileName, syncHandle);
-
-                fileHandles.push(syncHandle);
+                const syncHandleResult = await createSyncFileHandle(
+                    options.additionalDbPaths[i],
+                    lockmode,
+                    logger
+                );
+                if (syncHandleResult.err) {
+                    throw syncHandleResult.err.err;
+                }
+                fileMap.set(syncHandleResult.data.fullpath, syncHandleResult.data.syncHandle);
+                fileHandles.push(syncHandleResult.data.syncHandle);
             }
             if (lockmode === "readwrite") {
-                const dbFileHandle = await currentDir.getFileHandle(fileNameJournal, {
-                    create: true
-                });
-                // @ts-expect-error - not supported everywhere/standard
-                const syncHandle = await dbFileHandle.createSyncAccessHandle({
-                    mode: lockmode
-                });
-                logger.log(`filehandled created: ${parts.join("/") + fileNameJournal}`);
-                fileMap.set(parts.join("/") + fileNameJournal, syncHandle);
-                fileHandles.push(syncHandle);
+                const syncHandleResult = await createSyncFileHandle(
+                    options.additionalDbPaths[i],
+                    lockmode,
+                    logger,
+                    true
+                );
+                if (syncHandleResult.err) {
+                    throw syncHandleResult.err.err;
+                }
+                fileMap.set(syncHandleResult.data.fullpath, syncHandleResult.data.syncHandle);
+                fileHandles.push(syncHandleResult.data.syncHandle);
             }
         }
 
@@ -243,7 +274,6 @@ async function execute(
                         progressCallback("ROW", rowno, null);
                         rowno++;
                     } else {
-                        console.log(1);
                         stmt.bind(v);
                         if (statement.collect) {
                             stmt.step();
