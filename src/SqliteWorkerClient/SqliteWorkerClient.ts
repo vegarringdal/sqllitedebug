@@ -18,6 +18,7 @@ export class SqliteWorkerClient {
     #internalId = 0;
     #responses: Map<number, any> = new Map();
     #progressCallback: Map<number, ProgressCallback> = new Map();
+    #sharedModeEnabled = false;
 
     #getNextId() {
         this.#internalId++;
@@ -54,6 +55,16 @@ export class SqliteWorkerClient {
                     if (r) {
                         r(data.result.type, data.result.no, data.result.total);
                     }
+                    return;
+                }
+
+                if (data.type === "SHARED_MODE_ENABLED") {
+                    this.#sharedModeEnabled = true;
+                    return;
+                }
+
+                if (data.type === "SHARED_MODE_DISABLED") {
+                    this.#sharedModeEnabled = false;
                     return;
                 }
 
@@ -136,6 +147,12 @@ export class SqliteWorkerClient {
         files.add(options.mainDbPath);
         options.additionalDbPaths.map((e) => files.add(e));
 
+        // validate if lock mode is possible
+        if (options.lockmode === "shared" && !this.#sharedModeEnabled) {
+            log_before_work.log("Shared mode disabled, will use exclusive mode");
+            options.lockmode = "exclusive";
+        }
+
         const resolves: resolveFN[] = [];
         const locks: Promise<any>[] = [];
         const filesInUse: string[] = [];
@@ -155,7 +172,7 @@ export class SqliteWorkerClient {
         }
 
         Array.from(files).forEach((e) => {
-            log_before_work.log(`Locking: ${e}`);
+            log_before_work.log(`Locking: ${e}, lockmode: ${lockMode}`);
             locks.push(
                 navigator.locks.request(e, lockOptions, (lock) => {
                     return new Promise(async (r) => {

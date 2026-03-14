@@ -49,7 +49,7 @@ async function createSyncFileHandle(
             }
         }
 
-        logger.log(`filehandled created: ${parts.join("/") + fileName}`);
+        logger.log(`filehandled created: ${parts.join("/") + fileName}, lockmode:${lockmode}`);
 
         const dbFileHandle = await currentDir.getFileHandle(fileName, {
             create: true
@@ -77,8 +77,46 @@ async function createSyncFileHandle(
     }
 }
 
+/**
+ * helper to check if sharedMode is possible
+ */
+async function testSharedMode() {
+    const logger = new LogCollector(0, "init", false, false, [0, 0]);
 
-
+    try {
+        {
+            const syncHandleResult = await createSyncFileHandle(
+                "sharedModeTest.db",
+                "read-only",
+                logger
+            );
+            if (syncHandleResult.err) {
+                throw syncHandleResult.err.err;
+            }
+        }
+        {
+            const syncHandleResult = await createSyncFileHandle(
+                "sharedModeTest.db",
+                "read-only",
+                logger
+            );
+            if (syncHandleResult.err) {
+                throw syncHandleResult.err.err;
+            }
+        }
+    } catch (_) {
+        globalThis.postMessage({
+            id: 0,
+            type: "SHARED_MODE_DISABLED"
+        } as WorkerMessageEvent);
+    } finally {
+        globalThis.postMessage({
+            id: 0,
+            type: "SHARED_MODE_ENABLED"
+        } as WorkerMessageEvent);
+    }
+}
+await testSharedMode();
 
 /**
  * worker message handler

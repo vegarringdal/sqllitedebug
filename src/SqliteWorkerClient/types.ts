@@ -106,6 +106,14 @@ export type WorkerMessageEvent =
       }
     | {
           id: number;
+          type: "SHARED_MODE_DISABLED";
+      }
+    | {
+          id: number;
+          type: "SHARED_MODE_ENABLED";
+      }
+    | {
+          id: number;
           result: {
               type: "STATEMENT" | "ROW";
               no: number;

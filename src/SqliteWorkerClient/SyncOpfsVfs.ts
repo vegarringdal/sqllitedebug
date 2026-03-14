@@ -35,7 +35,7 @@ export class SyncOpfsVfs {
             return ptr;
         };
 
-        const readCStr = (ptr: number): string => (ptr ? wasm.cstrToJs(ptr)||"" : "");
+        const readCStr = (ptr: number): string => (ptr ? wasm.cstrToJs(ptr) || "" : "");
 
         // const writeI64 = (pOut: number, value: number): void => {
         //     wasm.poke(pOut, value >>> 0, "i32");
