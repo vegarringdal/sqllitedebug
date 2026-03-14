@@ -116,7 +116,7 @@ async function testSharedMode() {
         } as WorkerMessageEvent);
     }
 }
-testSharedMode(); // not perfect.. top level await cant be use in iffe..
+testSharedMode(); // not perfect.. top level await cant be use in iife..
 
 /**
  * worker message handler
