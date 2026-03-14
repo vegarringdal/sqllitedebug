@@ -49,7 +49,7 @@ const result = sqliteWorkerClientInstance.execute({
    {
     "data": [
         [],
-        []
+        [] // if you have collect: true to statement, we collect result here of selects
     ],
     "logs": [
         "bWorker    - 0000 ms [0000]  - Locking: main.db, lockmode: exclusive",
