@@ -225,9 +225,12 @@ export class SqliteWorkerClient {
 
         // add total time
 
+        finalResult.execTimeWorker = finalResult.execTimeWorker || 0;
+        finalResult.execTime = finalResult.execTime || 0;
+
         if (filesInUse.length) {
             finalResult.data = null;
-            finalResult.execTimeWorker = 0;
+
             finalResult.err = {
                 err: null,
                 msg: `Files in use: ${filesInUse.join(", ")}`
