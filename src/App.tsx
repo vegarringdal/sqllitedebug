@@ -106,46 +106,49 @@ function App() {
                     kill worker
                 </button>
             </div>
-            {samples.map((e, i) => {
-                const args = e.options(logCollect, workerLogPrint, printInputArgs);
+            <span className="font-semibold p-1 underline">Actions data</span>
+            <div className="overflow-auto">
+                {samples.map((e, i) => {
+                    const args = e.options(logCollect, workerLogPrint, printInputArgs);
 
-                return (
-                    <div key={i} className="flex flex-col p-3">
-                        <button
-                            type="button"
-                            disabled={isActive}
-                            className={e.getClassName(isActive)}
-                            onClick={async () => {
-                                console.clear(); // easier to read samples
+                    return (
+                        <div key={i} className="flex flex-col p-3">
+                            <button
+                                type="button"
+                                disabled={isActive}
+                                className={e.getClassName(isActive)}
+                                onClick={async () => {
+                                    console.clear(); // easier to read samples
 
-                                setIsActive(true);
-                                setProgressMsg("starting work");
-                                setErrorMsg("");
+                                    setIsActive(true);
+                                    setProgressMsg("starting work");
+                                    setErrorMsg("");
 
-                                const r = await e.instance.execute(args, (type, no, _total) => {
-                                    setProgressMsg(`Type:${type.padEnd(10, " ")} ${no}`);
-                                });
+                                    const r = await e.instance.execute(args, (type, no, _total) => {
+                                        setProgressMsg(`Type:${type.padEnd(10, " ")} ${no}`);
+                                    });
 
-                                setWorkerExecTime(`${r.execTimeWorker.toFixed(0)}ms`);
-                                setTotalExecTime(`${r.execTime.toFixed(0)}ms`);
-                                printSqliteWorkerClient(args, r);
-                                setIsActive(false);
+                                    setWorkerExecTime(`${r.execTimeWorker.toFixed(0)}ms`);
+                                    setTotalExecTime(`${r.execTime.toFixed(0)}ms`);
+                                    printSqliteWorkerClient(args, r);
+                                    setIsActive(false);
 
-                                setProgressMsg("ready for user action");
-                                if (r.err) {
-                                    setErrorMsg(r.err.msg);
-                                }
-                            }}
-                        >
-                            {e.buttonTitle}
-                        </button>
-                        <span className="p-1 text-gray-500 text-">
-                            Will lock: {args.mainDbPath} {args.additionalDbPaths.join(", ")},
-                            lockmode: {args.lockmode}
-                        </span>
-                    </div>
-                );
-            })}
+                                    setProgressMsg("ready for user action");
+                                    if (r.err) {
+                                        setErrorMsg(r.err.msg);
+                                    }
+                                }}
+                            >
+                                {e.buttonTitle}
+                            </button>
+                            <span className="p-1 text-gray-500 text-">
+                                Will lock: {args.mainDbPath} {args.additionalDbPaths.join(", ")},
+                                lockmode: {args.lockmode}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }
